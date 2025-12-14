@@ -1,9 +1,84 @@
-name: hello-world
-on: push
-jobs: 
-  hello-world-job:
+name: build-test-deploy
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
     runs-on: ubuntu-latest
-    steps: 
-      - name: Check out repository code
+    steps:
+      - name: Checkout repository
         uses: actions/checkout@v3
-      - run: echo "$(cat hello_world.txt)"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Next.js project
+        run: npm run build
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npx next lint .
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: production
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Next.js project
+        run: npm run build
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v3
+        with:
+          static_site_generator: next
+
+      - name: Upload artifacts
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: "./out"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
