@@ -23,24 +23,24 @@ jobs:
         run: npm run build
 
   test:
-    needs: build
-    runs-on: windows-latest
-    env:
-      CI: true
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+   needs: build
+   runs-on: windows-latest
+   env:
+     CI: true
+   steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20.x'
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.x'
 
-      - name: Install dependencies
-        run: npm install
+    - name: Install dependencies
+      run: npm install
 
-      - name: Run ESLint
-        run: npx next lint .
+    - name: Run ESLint
+      run: npx next lint
 
   deploy:
     needs: test
