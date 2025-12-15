@@ -2,7 +2,7 @@ name: build-test-deploy
 on: push
 jobs: 
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps: 
       - name: checkout repo
         uses: actions/checkout@v3
@@ -15,7 +15,7 @@ jobs:
       - run: npx next lint
   test: 
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     env:
       CI: true
     steps: 
@@ -42,7 +42,7 @@ jobs:
       name: production
       url: ${{ steps.deployment.outputs.page_url }}
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: checkout repo
